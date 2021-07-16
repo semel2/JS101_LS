@@ -14,7 +14,7 @@ while (calculate === "y") {
   let apr = acquireValueAndValidate(
     messages.aprQuery, messages.aprErrorMessage);
   let loanDurationInYears = acquireValueAndValidate(
-    messages.loanDurationQuery, messages.loanDurationErrorMessage);
+    messages.loanDurationQuery, messages.loanDurationErrorMessage, 'loanDuration');
 
   let monthlyPayment =
   monthlyPaymentCalculator(loanAmount, apr, loanDurationInYears);
@@ -46,33 +46,22 @@ function monthlyPaymentCalculator (loanAmount, apr, loanDurationInYears) {
   return monthlyPayment.toFixed(2);
 }
 
-function invalidLoanAmountOrAPR (number) {
-  return number.trim() === '' || Number.isNaN(Number(number)) || number < 0;
-}
-
-function invalidLoanDuration (number) {
-  return number.trim() === '' || Number.isNaN(Number(number)) ||
-    number < 0 || number % 1 !== 0;
+function invalidNumber(number, validationType = 'loanAmountOrAPR') {
+  return number.trim === '' || Number.isNaN(Number(number)) ||
+    Number(number) < 0 || (number % 1 !== 0 && validationType === 'loanDuration');
 }
 
 function prompt (message) {
   console.log(`=> ${message}`);
 }
 
-function acquireValueAndValidate(query, errorMessage) {
+function acquireValueAndValidate(query, errorMessage, validationType) {
   prompt(query);
   let outputValue = readline.question();
 
-  if (query === messages.loanDurationQuery) {
-    while (invalidLoanDuration(outputValue)) {
-      prompt(errorMessage);
-      outputValue = readline.question();
-    }
-  } else {
-    while (invalidLoanAmountOrAPR(outputValue)) {
-      prompt(errorMessage);
-      outputValue = readline.question();
-    }
+  while (invalidNumber(outputValue, validationType)) {
+    prompt(errorMessage);
+    outputValue = readline.question();
   }
   return Number(outputValue);
 }
