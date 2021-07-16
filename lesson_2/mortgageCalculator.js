@@ -74,9 +74,5 @@ function acquireValueAndValidate(query, errorMessage) {
       outputValue = readline.question();
     }
   }
-
-
   return Number(outputValue);
-
-
 }
