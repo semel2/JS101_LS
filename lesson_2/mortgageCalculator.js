@@ -20,11 +20,7 @@ while (calculate === "y") {
   monthlyPaymentCalculator(loanAmount, apr, loanDurationInYears);
   prompt(`Your monthly payment is $${monthlyPayment}.\n`);
 
-  prompt(messages.anotherCalculationQuery);
-  calculate = readline.question().trim()[0].toLowerCase();
-  while (!['y', 'n'].includes(calculate)) {
-    prompt(messages.anotherCalculationErrorMessage);
-  }
+  calculate = calculateAgainAnswer();
 }
 
 prompt("Goodbye!");
@@ -64,4 +60,15 @@ function acquireValueAndValidate(query, errorMessage, validationType) {
     outputValue = readline.question();
   }
   return Number(outputValue);
+}
+
+function calculateAgainAnswer() {
+  prompt(messages.anotherCalculationQuery);
+  let calculate = readline.question().trim().toLowerCase();
+  
+  while(!['yes', 'no', 'y', 'n'].includes(calculate)) {
+    prompt(messages.anotherCalculationErrorMessage);
+    calculate = readline.question().trim().toLowerCase();
+  }
+  return calculate;
 }
