@@ -65,8 +65,8 @@ function acquireValueAndValidate(query, errorMessage, validationType) {
 function calculateAgainAnswer() {
   prompt(messages.anotherCalculationQuery);
   let calculate = readline.question().trim().toLowerCase();
-  
-  while(!['yes', 'no', 'y', 'n'].includes(calculate)) {
+
+  while (!['yes', 'no', 'y', 'n'].includes(calculate)) {
     prompt(messages.anotherCalculationErrorMessage);
     calculate = readline.question().trim().toLowerCase();
   }
