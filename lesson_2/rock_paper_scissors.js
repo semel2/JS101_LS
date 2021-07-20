@@ -19,6 +19,8 @@ const WINNING_COMBOS = {
   spock: ['rock', 'scissors']
 };
 
+prompt('Welcome to rock, paper, scissors, lizard, spock!')
+
 while (play === 'y') {
 
   let seriesLength = acquireValueAndValidate('seriesLength');
@@ -40,6 +42,8 @@ while (play === 'y') {
 
   play = acquireValueAndValidate('playAgain')[0];
 }
+
+prompt('Goodbye!')
 
 function playGame(scoreCounter) {
   let choice = acquireValueAndValidate('userChoice');
