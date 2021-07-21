@@ -1,6 +1,6 @@
 const readline = require('readline-sync');
 const VALID_COMPUTER_CHOICES = ['rock', 'paper', 'scissors', 'lizard', 'spock'];
-let play = 'y';
+const MAX_WINS = 3;
 
 const MASTER_KEY = {
   seriesLength: {query: 'Would you like to play one game or a best of 5 series? Type 1 for one game or 5 for best of 5.',
@@ -18,32 +18,6 @@ const WINNING_COMBOS = {
   lizard: ['paper', 'spock'],
   spock: ['rock', 'scissors']
 };
-
-prompt('Welcome to rock, paper, scissors, lizard, spock!');
-
-while (play === 'y') {
-
-  let seriesLength = acquireValueAndValidate('seriesLength');
-  let scoreCounter = [0,0];
-
-  while (scoreCounter.every(number => number < 3)) {
-
-    playGame(scoreCounter);
-    if (seriesLength === '1') break;
-
-    prompt(`The series score is now: \nYou: ${scoreCounter[0]}\nComputer: ${scoreCounter[1]}\n`);
-
-    if (scoreCounter[0] === 3) {
-      prompt('You win the series!');
-    } else if (scoreCounter[1] === 3) {
-      prompt ('The computer wins the series!');
-    }
-  }
-
-  play = acquireValueAndValidate('playAgain')[0];
-}
-
-prompt('Goodbye!');
 
 function playGame(scoreCounter) {
   let choice = acquireValueAndValidate('userChoice');
@@ -73,11 +47,11 @@ function prompt (message) {
 
 function acquireValueAndValidate (inputType) {
   prompt(MASTER_KEY[inputType].query);
-  let choice = readline.question();
+  let choice = readline.question().trim().toLowerCase();
 
   while (!MASTER_KEY[inputType].choices.includes(choice)) {
     prompt ("Invalid choice entered- please choose again.");
-    choice = readline.question();
+    choice = readline.question().trim().toLowerCase();
   }
 
   if (inputType === 'userChoice' && choice.length <= 2) {
@@ -86,3 +60,28 @@ function acquireValueAndValidate (inputType) {
   }
   return choice;
 }
+
+prompt('Welcome to rock, paper, scissors, lizard, spock!');
+
+do {
+
+  let seriesLength = acquireValueAndValidate('seriesLength');
+  console.clear();
+  let scoreCounter = [0,0];
+
+  while (scoreCounter.every(number => number < MAX_WINS)) {
+
+    playGame(scoreCounter);
+    if (seriesLength === '1') break;
+
+    prompt(`The series score is now: \nYou: ${scoreCounter[0]}\nComputer: ${scoreCounter[1]}\n`);
+
+    if (scoreCounter[0] === MAX_WINS) {
+      prompt('You win the series!');
+    } else if (scoreCounter[1] === MAX_WINS) {
+      prompt ('The computer wins the series!');
+    }
+  }
+} while (acquireValueAndValidate('playAgain')[0] === 'y')
+
+prompt('Goodbye!');
