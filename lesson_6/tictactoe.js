@@ -11,7 +11,7 @@ const CRUCIAL_MOVE = 2;
 const WINNING_ROW = 3;
 const MIDDLE_SQUARE = 4;
 const PLAYERS = ["computer", "player1"];
-const MASTER_KEY = {
+let MASTER_KEY = {
   boardSelection: {query: "Choose a position to mark.",
     choices: ['1', '2', '3', '4', '5', '6', '7', '8', '9']},
   playAgain: {query: "Do you want to play again? (y/n)",
@@ -76,16 +76,16 @@ function getLineCondition(currentLine, lineCondition, playerChoice) {
 }
 
 function findCrucialComputerMove(board) {
-  let computerSelection = (board[MIDDLE_SQUARE] === ' ') ? MIDDLE_SQUARE : -1;
+  let computerSelection = (board[MIDDLE_SQUARE] === INIT_VALUE) ? MIDDLE_SQUARE : -1;
   let linePositions = getAllLines();
 
   for (let line = 0; line < linePositions.length; line += 1) {
     let currentLine = linePositions[line].map(number => board[number]);
-    if (currentLine.indexOf(' ') !== -1) {
+    if (currentLine.indexOf(INIT_VALUE) !== -1) {
       if (getLineCondition(currentLine, CRUCIAL_MOVE, PLAYER1_CHOICE)) {
-        computerSelection = linePositions[line][currentLine.indexOf(' ')];
+        computerSelection = linePositions[line][currentLine.indexOf(INIT_VALUE)];
       } else if (getLineCondition(currentLine, CRUCIAL_MOVE, COMPUTER_CHOICE)) {
-        computerSelection = linePositions[line][currentLine.indexOf(' ')];
+        computerSelection = linePositions[line][currentLine.indexOf(INIT_VALUE)];
         break;
       }
     }
@@ -100,7 +100,7 @@ function makeComputerMove(board) {
 
   if (crucialMoveFound === 0) {
     let emptyIndexes = board.map((value, index) => {
-      return (value === ' ') ? index : '';
+      return (value === INIT_VALUE) ? index : '';
     }).filter(value => value !== '');
     computerSelection = emptyIndexes[
       Math.floor(Math.random() * emptyIndexes.length)];
