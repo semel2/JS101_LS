@@ -142,6 +142,15 @@ function updateWinCount(gameResult, winCount) {
   winCount[gameResult] += 1;
 }
 
+function displayScoreboard(winCount) {
+  prompt('Current scoreboard:');
+  console.log('                      ');
+  console.log('  Player1 |  Dealer  | Draw');
+  console.log(' _________|__________|_______');
+  console.log(`     ${winCount[0]}    |    ${winCount[1]}     |   ${winCount[2]}`);
+  console.log('');
+}
+
 function displayGameResultAndWinCount(gameResult, winCount) {
   switch (gameResult) {
     case PLAYER1_WIN:
@@ -154,13 +163,7 @@ function displayGameResultAndWinCount(gameResult, winCount) {
       prompt("It's a draw.");
       break;
   }
-  prompt('Current scoreboard:');
-  console.log('                      ');
-  console.log('  Player1 |  Dealer  | Draw');
-  console.log(' _________|__________|_______');
-  console.log(`     ${winCount[0]}    |    ${winCount[1]}     |   ${winCount[2]}`);
-  console.log('');
-
+  displayScoreboard(winCount);
   if (winCount[PLAYER1_WIN] === MATCH_WIN) {
     prompt("You win the match!");
   } else if (winCount[DEALER_WIN] === MATCH_WIN) {
