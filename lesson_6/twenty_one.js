@@ -22,7 +22,7 @@ const CARDS = {
   Ace: {hard: 1, soft: 11}
 };
 
-const MASTER_KEY = {
+const MESSAGES = {
   boardSelection: {query: "Choose a position to mark.",
     choices: ['1', '2', '3', '4', '5', '6', '7', '8', '9']},
   playAgain: {query: "Do you want to play again? (y/n)",
@@ -32,10 +32,10 @@ const MASTER_KEY = {
 };
 
 function getUserSelectionAndValidate(validationType) {
-  prompt(MASTER_KEY[validationType].query);
+  prompt(MESSAGES[validationType].query);
   let outputValue = readline.question().trim().toLowerCase();
 
-  while (!MASTER_KEY[validationType].choices.includes(outputValue)) {
+  while (!MESSAGES[validationType].choices.includes(outputValue)) {
     prompt("Invalid choice entered- please select again.");
     outputValue = readline.question().trim().toLowerCase();
   }
