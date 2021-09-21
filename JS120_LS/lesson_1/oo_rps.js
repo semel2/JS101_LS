@@ -33,7 +33,7 @@ function createPlayer() {
   return {
     move: null,
     moveHistory: []
-  }
+  };
 }
 
 function createComputer() {
@@ -42,13 +42,18 @@ function createComputer() {
     let humanMoves = RPSGame.human.moveHistory;
     let memoryLength = 5;
     let moveWeight = 1;
-    let recentMoves = humanMoves.length >= memoryLength ? humanMoves.slice(humanMoves.length - memoryLength) : humanMoves.slice();
-    let moveScoreObject = {rock: 1, paper: 1, scissors: 1, lizard: 1, spock: 1}
+    let recentMoves = (humanMoves.length >= memoryLength) ?
+      humanMoves.slice(humanMoves.length - memoryLength) : humanMoves.slice();
+    let moveScoreObject = {rock: 1, paper: 1, scissors: 1, lizard: 1, spock: 1};
     recentMoves.forEach(move => {
-      RPSGame.losingCombos[move].forEach(counterMove => moveScoreObject[counterMove] += moveWeight);
+      RPSGame.losingCombos[move].forEach(counterMove => {
+        moveScoreObject[counterMove] += moveWeight;
+      });
     });
     let maxScore = Math.max(...Object.values(moveScoreObject));
-    let possibleMoves = Object.keys(moveScoreObject).filter(key => moveScoreObject[key] === maxScore);
+    let possibleMoves = Object.keys(moveScoreObject).filter(key => {
+      return moveScoreObject[key] === maxScore;
+    });
     this.move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
     this.moveHistory.push(this.move);
   };
@@ -60,7 +65,7 @@ function createHuman() {
   humanObject.choose = function() {
     this.move = acquireValueAndValidate('userChoice');
     this.moveHistory.push(this.move);
-  }
+  };
   return humanObject;
 }
 
@@ -134,44 +139,50 @@ const RPSGame = {
       console.log('You win the series!');
     } else if (this.scoreboard[1] === this.maxWins) {
       console.log('Computer wins the series.');
-    };
+    }
   },
 
   displayScoreBoard() {
-    console.log('')
+    console.log('');
     prompt('Current scoreboard:');
     console.log('                      ');
     console.log('  Player1 | Computer | Draw');
     console.log(' _________|__________|_______');
     console.log(`     ${this.scoreboard[0]}    |    ${this.scoreboard[1]}     |   ${this.scoreboard[2]}`);
-    console.log('')
+    console.log('');
   },
 
   displayMoveHistory() {
-    let humanMoveHistory = {rock: 0, paper: 0, scissors: 0, lizard: 0, spock: 0};
-    let computerMoveHistory = {rock: 0, paper: 0, scissors: 0, lizard: 0, spock: 0};
+    let humanMoveHistory = {rock: 0,
+      paper: 0, scissors: 0, lizard: 0, spock: 0};
+    let computerMoveHistory = {rock: 0,
+      paper: 0, scissors: 0, lizard: 0, spock: 0};
     this.human.moveHistory.forEach(move => {
       humanMoveHistory[move] += 1;
     });
     this.computer.moveHistory.forEach(move => {
       computerMoveHistory[move] += 1;
     });
-    let humanSortedMoves = Object.keys(humanMoveHistory).sort((a, b) => humanMoveHistory[b] - humanMoveHistory[a]);
-    let computerSortedMoves = Object.keys(computerMoveHistory).sort((a, b) => computerMoveHistory[b] - computerMoveHistory[a]);
-    console.log('')
-    console.log('         Move History         ')
-    console.log('')
-    console.log('   Human            Computer')
-    console.log('--------------    --------------')
-    console.log('  Move    | #       Move    | #')
-    console.log('----------|---    ----------|---')
-    for (let i = 0; i < humanSortedMoves.length; i += 1) {
-      let humanSpaces = 9 - humanSortedMoves[i].length;
-      let computerSpaces = 9 - computerSortedMoves[i].length;
-      console.log(` ${humanSortedMoves[i]}${' '.repeat(humanSpaces)}| ${humanMoveHistory[humanSortedMoves[i]]}     ` + 
-        ` ${computerSortedMoves[i]}${' '.repeat(computerSpaces)}| ${humanMoveHistory[humanSortedMoves[i]]}`);
-      console.log('----------|---    ----------|---')
-    };
+    let humanSortedMoves = Object.keys(humanMoveHistory).sort((a, b) => {
+      return humanMoveHistory[b] - humanMoveHistory[a];
+    });
+    let computerSortedMoves = Object.keys(computerMoveHistory).sort((a, b) => {
+      return computerMoveHistory[b] - computerMoveHistory[a];
+    });
+    console.log('');
+    console.log('         Move History         ');
+    console.log('');
+    console.log('   Human            Computer');
+    console.log('--------------    --------------');
+    console.log('  Move    | #       Move    | #');
+    console.log('----------|---    ----------|---');
+    for (let idx = 0; idx < humanSortedMoves.length; idx += 1) {
+      let humanSpaces = 9 - humanSortedMoves[idx].length;
+      let computerSpaces = 9 - computerSortedMoves[idx].length;
+      console.log(` ${humanSortedMoves[idx]}${' '.repeat(humanSpaces)}| ${humanMoveHistory[humanSortedMoves[idx]]}     ` +
+        ` ${computerSortedMoves[idx]}${' '.repeat(computerSpaces)}| ${humanMoveHistory[humanSortedMoves[idx]]}`);
+      console.log('----------|---    ----------|---');
+    }
     console.log('');
   },
 
