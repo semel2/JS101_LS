@@ -1,73 +1,36 @@
 const readline = require('readline-sync');
-const USER_QUERIES = {
-  seriesLength: {query: 'Would you like to play one game or a best of 5 series? Type 1 for one game or 5 for best of 5.',
-    choices: ['1', '5']},
-  userChoice: {query: `Choose r/rock, p/paper, sc/scissors, l/lizard, or sp/spock.`,
-    choices: ['rock', 'paper', 'scissors', 'lizard', 'spock', 'r', 'p', 'sc', 'l', 'sp']},
-  playAgain: {query: 'Do you want to play again? (y/n)',
-    choices: ['yes', 'no', 'y', 'n']},
-  nextGame: {query: 'Press ENTER to continue.', choices: ['']}
+
+const gameflow = {
+  USER_QUERIES: {
+    seriesLength: {query: 'Would you like to play one game or a best of 5 series? Type 1 for one game or 5 for best of 5.',
+      choices: ['1', '5']},
+    userChoice: {query: `Choose r/rock, p/paper, sc/scissors, l/lizard, or sp/spock.`,
+      choices: ['rock', 'paper', 'scissors', 'lizard', 'spock', 'r', 'p', 'sc', 'l', 'sp']},
+    playAgain: {query: 'Do you want to play again? (y/n)',
+      choices: ['yes', 'no', 'y', 'n']},
+    nextGame: {query: 'Press ENTER to continue.', choices: ['']}
+  },
+
+  prompt(message) {
+    console.log(`=> ${message}`);
+  },
+
+  acquireValueAndValidate(inputType) {
+    this.prompt(this.USER_QUERIES[inputType].query);
+    let choice = readline.question().trim().toLowerCase();
+
+    while (!this.USER_QUERIES[inputType].choices.includes(choice)) {
+      this.prompt ("Invalid choice entered- please choose again.");
+      choice = readline.question().trim().toLowerCase();
+    }
+
+    if (inputType === 'userChoice' && choice.length <= 2) {
+      choice = this.USER_QUERIES[inputType].
+        choices[(this.USER_QUERIES[inputType].choices.indexOf(choice) - 5)];
+    }
+    return choice;
+  }
 };
-
-function prompt (message) {
-  console.log(`=> ${message}`);
-}
-
-function acquireValueAndValidate (inputType) {
-  prompt(USER_QUERIES[inputType].query);
-  let choice = readline.question().trim().toLowerCase();
-
-  while (!USER_QUERIES[inputType].choices.includes(choice)) {
-    prompt ("Invalid choice entered- please choose again.");
-    choice = readline.question().trim().toLowerCase();
-  }
-
-  if (inputType === 'userChoice' && choice.length <= 2) {
-    choice = USER_QUERIES[inputType].
-      choices[(USER_QUERIES[inputType].choices.indexOf(choice) - 5)];
-  }
-  return choice;
-}
-
-function createPlayer() {
-  return {
-    move: null,
-    moveHistory: []
-  };
-}
-
-function createComputer() {
-  let computerObject = createPlayer();
-  computerObject.choose = function() {
-    let humanMoves = RPSGame.human.moveHistory;
-    let memoryLength = 5;
-    let moveWeight = 1;
-    let recentMoves = (humanMoves.length >= memoryLength) ?
-      humanMoves.slice(humanMoves.length - memoryLength) : humanMoves.slice();
-    let moveScoreObject = {rock: 1, paper: 1, scissors: 1, lizard: 1, spock: 1};
-    recentMoves.forEach(move => {
-      RPSGame.losingCombos[move].forEach(counterMove => {
-        moveScoreObject[counterMove] += moveWeight;
-      });
-    });
-    let maxScore = Math.max(...Object.values(moveScoreObject));
-    let possibleMoves = Object.keys(moveScoreObject).filter(key => {
-      return moveScoreObject[key] === maxScore;
-    });
-    this.move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
-    this.moveHistory.push(this.move);
-  };
-  return computerObject;
-}
-
-function createHuman() {
-  let humanObject = createPlayer();
-  humanObject.choose = function() {
-    this.move = acquireValueAndValidate('userChoice');
-    this.moveHistory.push(this.move);
-  };
-  return humanObject;
-}
 
 const RPSGame = {
   human: createHuman(),
@@ -93,7 +56,7 @@ const RPSGame = {
   },
 
   askForSeriesLength() {
-    return acquireValueAndValidate('seriesLength');
+    return gameflow.acquireValueAndValidate('seriesLength');
   },
 
   displayWelcomeMessage() {
@@ -144,7 +107,7 @@ const RPSGame = {
 
   displayScoreBoard() {
     console.log('');
-    prompt('Current scoreboard:');
+    gameflow.prompt('Current scoreboard:');
     console.log('                      ');
     console.log('  Player1 | Computer | Draw');
     console.log(' _________|__________|_______');
@@ -152,23 +115,33 @@ const RPSGame = {
     console.log('');
   },
 
-  displayMoveHistory() {
+  getHumanSortedMoves() {
     let humanMoveHistory = {rock: 0,
-      paper: 0, scissors: 0, lizard: 0, spock: 0};
-    let computerMoveHistory = {rock: 0,
       paper: 0, scissors: 0, lizard: 0, spock: 0};
     this.human.moveHistory.forEach(move => {
       humanMoveHistory[move] += 1;
     });
-    this.computer.moveHistory.forEach(move => {
-      computerMoveHistory[move] += 1;
-    });
     let humanSortedMoves = Object.keys(humanMoveHistory).sort((a, b) => {
       return humanMoveHistory[b] - humanMoveHistory[a];
+    });
+    return [humanMoveHistory, humanSortedMoves];
+  },
+
+  getComputerSortedMoves() {
+    let computerMoveHistory = {rock: 0,
+      paper: 0, scissors: 0, lizard: 0, spock: 0};
+    this.computer.moveHistory.forEach(move => {
+      computerMoveHistory[move] += 1;
     });
     let computerSortedMoves = Object.keys(computerMoveHistory).sort((a, b) => {
       return computerMoveHistory[b] - computerMoveHistory[a];
     });
+    return [computerMoveHistory, computerSortedMoves];
+  },
+
+  displayMoveHistory() {
+    let [humanMoveHistory, humanSortedMoves] = this.getHumanSortedMoves();
+    let [computerMoveHistory, computerSortedMoves] = this.getComputerSortedMoves();
     console.log('');
     console.log('         Move History         ');
     console.log('');
@@ -180,14 +153,14 @@ const RPSGame = {
       let humanSpaces = 9 - humanSortedMoves[idx].length;
       let computerSpaces = 9 - computerSortedMoves[idx].length;
       console.log(` ${humanSortedMoves[idx]}${' '.repeat(humanSpaces)}| ${humanMoveHistory[humanSortedMoves[idx]]}     ` +
-        ` ${computerSortedMoves[idx]}${' '.repeat(computerSpaces)}| ${humanMoveHistory[humanSortedMoves[idx]]}`);
+        ` ${computerSortedMoves[idx]}${' '.repeat(computerSpaces)}| ${computerMoveHistory[computerSortedMoves[idx]]}`);
       console.log('----------|---    ----------|---');
     }
     console.log('');
   },
 
   playAgain() {
-    return acquireValueAndValidate('playAgain')[0] === 'y';
+    return gameflow.acquireValueAndValidate('playAgain')[0] === 'y';
   },
 
   playSingleGame() {
@@ -205,7 +178,7 @@ const RPSGame = {
       this.updateScoreCount();
       this.displayGameWinner();
       this.displayScoreBoard();
-      _ = acquireValueAndValidate('nextGame');
+      gameflow.acquireValueAndValidate('nextGame');
     }
     this.displaySeriesWinner();
     this.scoreboard = [0,0,0];
@@ -214,7 +187,11 @@ const RPSGame = {
   play() {
     this.displayWelcomeMessage();
     while (true) {
-      this.askForSeriesLength() === '1' ? this.playSingleGame() : this.playSeries();
+      if (this.askForSeriesLength() === '1') {
+        this.playSingleGame();
+      } else {
+        this.playSeries();
+      }
       this.displayMoveHistory();
       if (!this.playAgain()) break;
     }
@@ -222,5 +199,44 @@ const RPSGame = {
   }
 };
 
+function createPlayer() {
+  return {
+    move: null,
+    moveHistory: []
+  };
+}
+
+function createComputer() {
+  let computerObject = createPlayer();
+  computerObject.choose = function() {
+    let humanMoves = RPSGame.human.moveHistory;
+    let memoryLength = 5;
+    let moveWeight = 1;
+    let recentMoves = (humanMoves.length >= memoryLength) ?
+      humanMoves.slice(humanMoves.length - memoryLength) : humanMoves.slice();
+    let moveScoreObject = {rock: 1, paper: 1, scissors: 1, lizard: 1, spock: 1};
+    recentMoves.forEach(move => {
+      RPSGame.losingCombos[move].forEach(counterMove => {
+        moveScoreObject[counterMove] += moveWeight;
+      });
+    });
+    let maxScore = Math.max(...Object.values(moveScoreObject));
+    let possibleMoves = Object.keys(moveScoreObject).filter(key => {
+      return moveScoreObject[key] === maxScore;
+    });
+    this.move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+    this.moveHistory.push(this.move);
+  };
+  return computerObject;
+}
+
+function createHuman() {
+  let humanObject = createPlayer();
+  humanObject.choose = function() {
+    this.move = gameflow.acquireValueAndValidate('userChoice');
+    this.moveHistory.push(this.move);
+  };
+  return humanObject;
+}
 
 RPSGame.play();
