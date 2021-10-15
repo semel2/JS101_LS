@@ -194,9 +194,14 @@ class TwentyOneGame {
     this.finalizeGame();
   }
 
-  playerHasValidMoney() {
-    return this.player.money > TwentyOneGame.BROKE &&
-      this.player.money < TwentyOneGame.RICH;
+  startGame() {
+    console.clear();
+    this.displayWelcomeMessage();
+    gameflow.acquireValueAndValidate('startGame', this);
+  }
+
+  displayWelcomeMessage() {
+    console.log('Welcome to Twenty-One! You are starting the game with $5.');
   }
 
   playSingleRound() {
@@ -233,21 +238,18 @@ class TwentyOneGame {
     }
   }
 
-  displayWelcomeMessage() {
-    console.log('Welcome to Twenty-One! You are starting the game with $5.');
-  }
-
-  startGame() {
-    console.clear();
-    this.displayWelcomeMessage();
-    gameflow.acquireValueAndValidate('startGame', this);
-  }
-
   displayScore(condition) {
     let playerTurnClause = `${this.dealer.hand[0]} and unknown card.`;
     let finalScoreClause = `${gameflow.joinOr(this.dealer.hand, ',', 'and')} (${this.dealer.getHandValue()}).`;
     console.log(`You ${condition === 'playerTurn' ? 'have' : 'ended with'}: ${gameflow.joinOr(this.player.hand, ',', 'and')} (${this.player.getHandValue()}).`);
     console.log(`Dealer ${condition === 'playerTurn' ? 'has' : 'ended with'}: ${condition === 'playerTurn' ? playerTurnClause : finalScoreClause}\n`);
+  }
+
+  finalizeRound() {
+    let result = this.determineResult();
+    this.player.adjustMoney(result);
+    this.displayScore('finalScore');
+    this.displayResult(result);
   }
 
   determineResult() {
@@ -286,16 +288,19 @@ class TwentyOneGame {
     console.log(`You now have ${this.player.getMoney()} dollars.\n`);
   }
 
-  finalizeRound() {
-    let result = this.determineResult();
-    this.player.adjustMoney(result);
-    this.displayScore('finalScore');
-    this.displayResult(result);
+  playerHasValidMoney() {
+    return this.player.money > TwentyOneGame.BROKE &&
+      this.player.money < TwentyOneGame.RICH;
   }
 
   playAgain() {
     let choice = gameflow.acquireValueAndValidate('playAgain', this);
     return choice[0] === 'y';
+  }
+
+  finalizeGame() {
+    this.displayFinalMoney();
+    this.displayGoodbyeMessage();
   }
 
   displayFinalMoney() {
@@ -309,11 +314,6 @@ class TwentyOneGame {
 
   displayGoodbyeMessage() {
     console.log('\nThanks for playing Twenty-One. Bye!');
-  }
-
-  finalizeGame() {
-    this.displayFinalMoney();
-    this.displayGoodbyeMessage();
   }
 }
 
