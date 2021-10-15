@@ -84,6 +84,8 @@ class Board {
     }
   }
 
+  static MIDDLE_SQUARE = '5';
+
   markSquareAt(key, marker) {
     this.squares[key].setMarker(marker);
   }
@@ -135,10 +137,15 @@ class Board {
 class Player {
   constructor(marker) {
     this.marker = marker;
+    this.score = 0;
   }
 
   getMarker() {
     return this.marker;
+  }
+
+  wonRound() {
+    this.score += 1;
   }
 }
 
@@ -191,8 +198,8 @@ class Computer extends Player {
     choice = this.getCrucialMove(context);
 
     if (choice === undefined) {
-      if (validChoices.includes('5')) {
-        choice = '5';
+      if (validChoices.includes(Board.MIDDLE_SQUARE)) {
+        choice = Board.MIDDLE_SQUARE;
       } else {
         do {
           choice = Math.floor((9 * Math.random()) + 1).toString();
@@ -208,7 +215,6 @@ class TTTGame {
     this.board = new Board();
     this.human = new Human();
     this.computer = new Computer();
-    this.scoreboard = {human: 0, computer: 0};
     this.firstPlayer = 'human';
   }
 
@@ -239,26 +245,26 @@ class TTTGame {
   playSingleGame() {
     this.board.reset();
     let currentPlayer = this.firstPlayer;
-    while (true) {
+
+    do {
       this.board.displayWithClear();
       this.playerMakesMove(currentPlayer);
-      if (this.gameOver()) break;
       currentPlayer = this.switchPlayer(currentPlayer);
-    }
+    } while (!this.gameOver());
+
     this.board.displayWithClear();
     this.displayResults();
-    this.switchFirstPlayer();
+    this.firstPlayer = this.switchPlayer(this.firstPlayer);
   }
 
   playSeries() {
-    this.clearScoreboard();
-    while (true) {
+    this.clearScore();
+
+    do {
       this.playSingleGame();
-      this.incrementScoreboard();
+      this.incrementScore();
       this.displaySeriesScore();
-      if (this.isSeriesWinner()) break;
-      gameflow.acquireValueAndValidate('nextGame', this);
-    }
+    } while (!this.isSeriesWinner() && this.nextGame());
 
     this.displaySeriesWinner();
   }
@@ -269,6 +275,10 @@ class TTTGame {
 
   displayGoodbyeMessage() {
     console.log('Thanks for playing tic-tac-toe! Goodbye!');
+  }
+
+  nextGame() {
+    return gameflow.acquireValueAndValidate('nextGame', this) === '';
   }
 
   displayResults() {
@@ -287,10 +297,6 @@ class TTTGame {
     return (player === 'human') ? 'computer' : 'human';
   }
 
-  switchFirstPlayer() {
-    this.firstPlayer = (this.firstPlayer === 'human') ? 'computer' : 'human';
-  }
-
   gameOver() {
     return this.board.isFull() || this.someoneWon();
   }
@@ -306,21 +312,19 @@ class TTTGame {
   }
 
   isSeriesWinner() {
-    return Object.values(this.scoreboard).some(score => {
-      return score === TTTGame.MAX_WINS;
-    });
+    return [this.human.score, this.computer.score].includes(TTTGame.MAX_WINS);
   }
 
-  clearScoreboard() {
-    this.scoreboard.human = 0;
-    this.scoreboard.computer = 0;
+  clearScore() {
+    this.human.score = 0;
+    this.computer.score = 0;
   }
 
-  incrementScoreboard() {
+  incrementScore() {
     if (this.isWinner(this.human)) {
-      this.scoreboard.human += 1;
+      this.human.wonRound();
     } else if (this.isWinner(this.computer)) {
-      this.scoreboard.computer += 1;
+      this.computer.wonRound();
     }
   }
 
@@ -329,12 +333,12 @@ class TTTGame {
     console.log('');
     console.log(' Human | Computer');
     console.log('-------|----------');
-    console.log(`   ${this.scoreboard.human}   |     ${this.scoreboard.computer}    `);
+    console.log(`   ${this.human.score}   |     ${this.computer.score}    `);
     console.log('');
   }
 
   displaySeriesWinner() {
-    if (this.scoreboard.human === TTTGame.MAX_WINS) {
+    if (this.human.score === TTTGame.MAX_WINS) {
       console.log('You win the series!');
     } else (console.log('Computer wins the series.'));
   }
