@@ -215,7 +215,6 @@ class TwentyOneGame {
     console.clear();
     this.deck.init();
     this.deck.shuffle();
-    debugger;
     this.player.clearHand();
     this.dealer.clearHand();
     this.deck.dealHand(this.player);
@@ -225,7 +224,7 @@ class TwentyOneGame {
   playerTurn() {
     while (this.player.getHandValue() < TwentyOneGame.BLACKJACK) {
       this.displayScore('playerTurn');
-      if (this.player.hitOrStay() === 's') break;
+      if (this.player.hitOrStay()[0] === 's') break;
       this.deck.dealCard(this.player);
     }
   }
